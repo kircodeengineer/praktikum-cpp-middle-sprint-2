@@ -6,15 +6,13 @@ namespace stdx::details {
 
 // Шаблонный класс, хранящий C-style строку фиксированной длины
 template <std::size_t SIZE>
-class fixed_string {
-private:
+struct fixed_string {
     char data[SIZE]{};
 
-public:
     fixed_string() = delete;
-    fixed_string(fixed_string &) = delete;
-    constexpr fixed_string(fixed_string &&) = default;
-    fixed_string &operator=(fixed_string &) = delete;
+    fixed_string(const fixed_string &) = default;
+    fixed_string(fixed_string &&) = default;
+    fixed_string &operator=(const fixed_string &) = delete;
     fixed_string &operator=(fixed_string &&) = delete;
     ~fixed_string() = default;
 
@@ -39,23 +37,22 @@ public:
         std::copy(begin, end, data);
     }
 
-    [[nodiscard]] constexpr const std::size_t GetSize() noexcept { return SIZE; }
+    [[nodiscard]] constexpr const std::size_t GetSize() const noexcept { return SIZE; }
 
-    [[nodiscard]] constexpr const char *GetData() noexcept { return data; }
+    [[nodiscard]] constexpr const char *GetData() const noexcept { return data; }
 };
 
 // Шаблонный класс, хранящий fixed_string достаточной длины для хранения ошибки парсинга
 constexpr std::size_t PARSE_ERROR_MAX_LEN{100};
-class parse_error : public fixed_string<PARSE_ERROR_MAX_LEN> {};
+struct parse_error : fixed_string<PARSE_ERROR_MAX_LEN> {};
 
 // Шаблонный класс для хранения результатов парсинга
 template <typename... Ts>
-class scan_result {
-public:
+struct scan_result {
     scan_result() = delete;
-    scan_result(scan_result &) = delete;
+    scan_result(const scan_result &) = delete;
     scan_result(scan_result &&) = delete;
-    scan_result &operator=(scan_result &) = delete;
+    scan_result &operator=(const scan_result &) = delete;
     scan_result &operator=(scan_result &&) = delete;
     ~scan_result() = default;
 
@@ -64,7 +61,6 @@ public:
 
     [[nodiscard]] constexpr const auto &GetValues() noexcept { return values; }
 
-private:
     std::tuple<Ts...> values{};
 };
 
