@@ -16,12 +16,7 @@ struct fixed_string {
     fixed_string &operator=(fixed_string &&) = delete;
     ~fixed_string() = default;
 
-    template <std::size_t ARR_CHAR_SIZE>
-    constexpr fixed_string(const char (&arrChar)[ARR_CHAR_SIZE]) noexcept
-        requires(ARR_CHAR_SIZE == SIZE)
-    {
-        std::copy_n(arrChar, SIZE, data);
-    }
+    constexpr fixed_string(const char (&arrChar)[SIZE]) noexcept { std::copy_n(arrChar, SIZE, data); }
 
     template <std::size_t ARR_CHAR_SIZE>
     constexpr fixed_string(const char (&arrChar)[ARR_CHAR_SIZE]) noexcept

@@ -102,13 +102,11 @@ public:
     static constexpr const auto number_placeholders{exp_number_placeholders.value()};
     static constexpr const auto placeholder_positions{get_placeholder_positions()};
 };
-};  // namespace stdx::details
 
-// Пользовательский литерал
-/*
-ваш код здесь
-ваш код здесь operator"" _fs()  сигнатуру также поменяйте
-{
-ваш код здесь
+// Пользовательский литерал _fs
+template <fixed_string STR>
+consteval auto operator""_fs() {
+    return format_string<STR>{};
 }
-*/
+
+};  // namespace stdx::details
