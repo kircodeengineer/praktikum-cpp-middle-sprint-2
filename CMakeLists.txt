@@ -12,7 +12,13 @@ add_library(${target} INTERFACE)
 
 target_include_directories(${target} INTERFACE include/)
 
+target_compile_options(${target} INTERFACE -Wno-c++26-extensions)
+
+
 set(test_target scan_tests)
 
 add_executable(${test_target} tests/main.cpp)
+
 target_link_libraries(${test_target} PRIVATE ${target})
+
+target_compile_options(${test_target} PRIVATE -Wno-c++26-extensions)
