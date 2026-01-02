@@ -26,15 +26,13 @@ struct fixed_string {
         std::copy_n(arrChar, ARR_CHAR_SIZE, data);
     }
 
-    fixed_string(const char *begin, const char *end) noexcept {
+    constexpr fixed_string(const char *begin, const char *end) noexcept {
         // компилятор не позволяет работать с указателями в compile-time
         assert(std::distance(begin, end) <= SIZE);
         std::copy(begin, end, data);
     }
 
-    [[nodiscard]] constexpr const std::size_t GetSize() const noexcept { return SIZE; }
-
-    [[nodiscard]] constexpr const char *GetData() const noexcept { return data; }
+    [[nodiscard]] constexpr const std::size_t size() const noexcept { return SIZE; }
 };
 
 // Шаблонный класс, хранящий fixed_string достаточной длины для хранения ошибки парсинга

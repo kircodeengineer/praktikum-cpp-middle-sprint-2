@@ -2,6 +2,7 @@
 
 #include <array>
 #include <expected>
+#include <string>
 #include <string_view>
 
 #include "types.hpp"
@@ -9,13 +10,15 @@
 namespace stdx::details {
 
 // Шаблонный класс для хранения форматирующей строчки и ее особенностей
-template <fixed_string STR>
+template <fixed_string str>
 class format_string {
+public:
+    static constexpr auto fmt{str};
+
 private:
-    static constexpr auto str{STR};
     // Метод для получения количества плейсхолдеров и проверки корректности формирующей строки
     static consteval std::expected<std::size_t, parse_error> get_number_placeholders() {
-        constexpr size_t N = str.GetSize();
+        constexpr size_t N = str.size();
         if (!N)
             return 0;
         size_t placeholder_count = 0;
@@ -24,7 +27,7 @@ private:
 
         while (pos < size) {
             // Пропускаем все символы до '{'
-            if (str.GetData()[pos] != '{') {
+            if (str.data[pos] != '{') {
                 ++pos;
                 continue;
             }
@@ -39,14 +42,14 @@ private:
             ++pos;
 
             // Проверка спецификатора формата
-            if (str.GetData()[pos] == '%') {
+            if (str.data[pos] == '%') {
                 ++pos;
                 if (pos >= size) {
                     return std::unexpected(parse_error{"Unclosed last placeholder"});
                 }
 
                 // Проверяем допустимые спецификаторы
-                const char spec = str.GetData()[pos];
+                const char spec = str.data[pos];
                 constexpr char valid_specs[] = {'d', 'u', 'f', 's'};
                 bool valid = false;
 
@@ -64,7 +67,7 @@ private:
             }
 
             // Проверяем закрывающую скобку
-            if (pos >= size || str.GetData()[pos] != '}') {
+            if (pos >= size || str.data[pos] != '}') {
                 return std::unexpected(parse_error{"\'}\' hasn't been found in appropriate place"});
             }
             ++pos;
@@ -78,8 +81,8 @@ private:
         std::array<std::pair<std::size_t, std::size_t>, number_placeholders> result;
         std::size_t placeholder_i{};
 
-        for (std::size_t i = 0; i < str.GetSize(); ++i) {
-            switch (str.GetData()[i]) {
+        for (std::size_t i = 0; i < str.size(); ++i) {
+            switch (str.data[i]) {
             case '{':
                 result[placeholder_i].first = i;
                 break;
