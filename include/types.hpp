@@ -49,10 +49,7 @@ struct scan_result {
     scan_result &operator=(scan_result &&) = delete;
     ~scan_result() = default;
 
-    // debug
     constexpr scan_result(std::tuple<Ts...> values) : values{std::move(values)} {}
-
-    [[nodiscard]] constexpr const auto &GetValues() noexcept { return values; }
 
     std::tuple<Ts...> values{};
 };
