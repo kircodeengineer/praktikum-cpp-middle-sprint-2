@@ -17,85 +17,10 @@ public:
 
 private:
     // Метод для получения количества плейсхолдеров и проверки корректности формирующей строки
-    static consteval std::expected<std::size_t, parse_error> get_number_placeholders() {
-        constexpr size_t N = str.size();
-        if (!N)
-            return 0;
-        size_t placeholder_count = 0;
-        size_t pos = 0;
-        const size_t size = N - 1;  // -1 для игнорирования нуль-терминатора
-
-        while (pos < size) {
-            // Пропускаем все символы до '{'
-            if (str.data[pos] != '{') {
-                ++pos;
-                continue;
-            }
-
-            // Проверяем незакрытый плейсхолдер
-            if (pos + 1 >= size) {
-                return std::unexpected(parse_error{"Unclosed last placeholder"});
-            }
-
-            // Начало плейсхолдера
-            ++placeholder_count;
-            ++pos;
-
-            // Проверка спецификатора формата
-            if (str.data[pos] == '%') {
-                ++pos;
-                if (pos >= size) {
-                    return std::unexpected(parse_error{"Unclosed last placeholder"});
-                }
-
-                // Проверяем допустимые спецификаторы
-                const char spec = str.data[pos];
-                constexpr char valid_specs[] = {'d', 'u', 'f', 's'};
-                bool valid = false;
-
-                for (const char s : valid_specs) {
-                    if (spec == s) {
-                        valid = true;
-                        break;
-                    }
-                }
-
-                if (!valid) {
-                    return std::unexpected(parse_error{"Invalid specifier."});
-                }
-                ++pos;
-            }
-
-            // Проверяем закрывающую скобку
-            if (pos >= size || str.data[pos] != '}') {
-                return std::unexpected(parse_error{"\'}\' hasn't been found in appropriate place"});
-            }
-            ++pos;
-        }
-
-        return placeholder_count;
-    }
+    static consteval std::expected<std::size_t, parse_error> get_number_placeholders();
 
     // Метод для получения позиций плейсхолдеров
-    static consteval auto get_placeholder_positions() {
-        std::array<std::pair<std::size_t, std::size_t>, number_placeholders> result;
-        std::size_t placeholder_i{};
-
-        for (std::size_t i = 0; i < str.size(); ++i) {
-            switch (str.data[i]) {
-            case '{':
-                result[placeholder_i].first = i;
-                break;
-            case '}':
-                result[placeholder_i].second = i;
-                ++placeholder_i;
-                break;
-            default:
-                break;
-            }
-        }
-        return result;
-    }
+    static consteval auto get_placeholder_positions();
 
 private:
     static constexpr const auto exp_number_placeholders{get_number_placeholders()};
@@ -105,6 +30,87 @@ public:
     static constexpr const auto number_placeholders{exp_number_placeholders.value()};
     static constexpr const auto placeholder_positions{get_placeholder_positions()};
 };
+
+template <fixed_string str>
+consteval std::expected<std::size_t, parse_error> format_string<str>::get_number_placeholders() {
+    constexpr size_t N = str.size();
+    if (!N)
+        return 0;
+    size_t placeholder_count = 0;
+    size_t pos = 0;
+    const size_t size = N - 1;  // -1 для игнорирования нуль-терминатора
+
+    while (pos < size) {
+        // Пропускаем все символы до '{'
+        if (str.data[pos] != '{') {
+            ++pos;
+            continue;
+        }
+
+        // Проверяем незакрытый плейсхолдер
+        if (pos + 1 >= size) {
+            return std::unexpected(parse_error{"Unclosed last placeholder"});
+        }
+
+        // Начало плейсхолдера
+        ++placeholder_count;
+        ++pos;
+
+        // Проверка спецификатора формата
+        if (str.data[pos] == '%') {
+            ++pos;
+            if (pos >= size) {
+                return std::unexpected(parse_error{"Unclosed last placeholder"});
+            }
+
+            // Проверяем допустимые спецификаторы
+            const char spec = str.data[pos];
+            constexpr char valid_specs[] = {'d', 'u', 'f', 's'};
+            bool valid = false;
+
+            for (const char s : valid_specs) {
+                if (spec == s) {
+                    valid = true;
+                    break;
+                }
+            }
+
+            if (!valid) {
+                return std::unexpected(parse_error{"Invalid specifier."});
+            }
+            ++pos;
+        }
+
+        // Проверяем закрывающую скобку
+        if (pos >= size || str.data[pos] != '}') {
+            return std::unexpected(parse_error{"\'}\' hasn't been found in appropriate place"});
+        }
+        ++pos;
+    }
+
+    return placeholder_count;
+}
+
+template <fixed_string str>
+consteval auto format_string<str>::get_placeholder_positions() {
+    std::array<std::pair<std::size_t, std::size_t>, number_placeholders> result;
+    std::size_t placeholder_i{};
+
+    for (std::size_t i = 0; i < str.size(); ++i) {
+        switch (str.data[i]) {
+        case '{':
+            result[placeholder_i].first = i;
+            break;
+        case '}':
+            result[placeholder_i].second = i;
+            ++placeholder_i;
+            break;
+        default:
+            break;
+        }
+    }
+    return result;
+}
 
 // Пользовательский литерал _fs
 template <fixed_string STR>
