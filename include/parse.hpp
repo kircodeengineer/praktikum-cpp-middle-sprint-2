@@ -62,16 +62,24 @@ consteval auto get_current_source_for_parsing() {
     return std::pair{src_start, src_end};
 }
 
+template <typename T>
+consteval std::pair<std::from_chars_result, T> parse_number(const char *begin, const char *end) {
+    T result{};
+    auto parse_result = std::from_chars(begin, end, result);
+    return {parse_result, result};
+}
+
 // Реализуйте семейство функция parse_value
 template <typename Result, fixed_string fmt_fs, fixed_string source_fs>
 consteval auto parse_value()
     requires(!std::strcmp(fmt_fs.data, "%d") || !std::strcmp(fmt_fs.data, "%u"))
 {
-    Result result{};
+
     constexpr auto begin{source_fs.data};
     constexpr auto end{source_fs.data + source_fs.size()};
-    std::from_chars(begin, end, result);
-    return result;
+    constexpr auto result{parse_number<Result>(begin, end)};
+    static_assert(result.first.ec != std::errc::invalid_argument, "Invalid data to parse in number");
+    return result.second;
 }
 template <typename Result, fixed_string fmt_fs, fixed_string source_fs>
 consteval auto parse_value()

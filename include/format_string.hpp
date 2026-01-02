@@ -112,9 +112,9 @@ consteval auto format_string<str>::get_placeholder_positions() {
 }
 
 // Пользовательский литерал _fs
-template <fixed_string STR>
+template <fixed_string str>
 consteval auto operator""_fs() {
-    return format_string<STR>{};
+    return format_string<str>{};
 }
 
 };  // namespace stdx::details
