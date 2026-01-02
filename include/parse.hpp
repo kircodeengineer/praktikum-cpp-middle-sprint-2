@@ -82,7 +82,9 @@ consteval auto parse_value()
 
 // Шаблонная функция, выполняющая преобразования исходных данных в конкретный тип на основе I-го плейсхолдера
 template <typename result, std::size_t I, format_string fmt, fixed_string source>
-consteval auto parse_input() {
+consteval auto parse_input()
+    requires(!std::is_const_v<result>)
+{
     constexpr auto source_pos{get_current_source_for_parsing<I, fmt, source>()};
     constexpr auto source_begin{source.data + source_pos.first};
     constexpr auto source_end{source.data + source_pos.second};

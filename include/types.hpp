@@ -27,7 +27,7 @@ struct fixed_string {
     }
 
     constexpr fixed_string(const char *begin, const char *end) noexcept {
-        // компилятор не позволяет работать с указателями в compile-time
+        // компилятор не позволяет проверять указатели в compile-time
         assert(std::distance(begin, end) <= SIZE);
         std::copy(begin, end, data);
     }
