@@ -14,7 +14,7 @@ namespace stdx::details {
 
 // Шаблонная функция, возвращающая пару позиций в строке с исходными данными, соотвествующих I-ому плейсхолдеру
 template <int I, format_string fmt, fixed_string source>
-[[nodiscard]] consteval auto get_current_source_for_parsing() {
+[[nodiscard]] consteval auto get_current_source_for_parsing() noexcept {
     static_assert(I >= 0 && I < fmt.number_placeholders, "Invalid placeholder index");
 
     constexpr auto to_sv = [](const auto &fs) { return std::string_view(fs.data, fs.size() - 1); };
@@ -63,7 +63,7 @@ template <int I, format_string fmt, fixed_string source>
 }
 
 template <typename T>
-[[nodiscard]] consteval std::pair<std::from_chars_result, T> parse_number(const char *begin, const char *end) {
+[[nodiscard]] consteval std::pair<std::from_chars_result, T> parse_number(const char *begin, const char *end) noexcept {
     T result{};
     auto parse_result = std::from_chars(begin, end, result);
     return {parse_result, result};
@@ -71,7 +71,7 @@ template <typename T>
 
 // Реализуйте семейство функция parse_value
 template <typename Result, fixed_string fmt_fs, fixed_string source_fs>
-[[nodiscard]] consteval auto parse_value()
+[[nodiscard]] consteval auto parse_value() noexcept
     requires(!std::strcmp(fmt_fs.data, "%d") || !std::strcmp(fmt_fs.data, "%u"))
 {
 
@@ -82,7 +82,7 @@ template <typename Result, fixed_string fmt_fs, fixed_string source_fs>
     return result.second;
 }
 template <typename Result, fixed_string fmt_fs, fixed_string source_fs>
-[[nodiscard]] consteval auto parse_value()
+[[nodiscard]] consteval auto parse_value() noexcept
     requires(!std::strcmp(fmt_fs.data, "%s") || !std::strcmp(fmt_fs.data, ""))
 {
     return source_fs.data;
@@ -90,7 +90,7 @@ template <typename Result, fixed_string fmt_fs, fixed_string source_fs>
 
 // Шаблонная функция, выполняющая преобразования исходных данных в конкретный тип на основе I-го плейсхолдера
 template <typename result, std::size_t I, format_string fmt, fixed_string source>
-[[nodiscard]] consteval auto parse_input()
+[[nodiscard]] consteval auto parse_input() noexcept
     requires(!std::is_const_v<result>)
 {
     constexpr auto source_pos{get_current_source_for_parsing<I, fmt, source>()};

@@ -18,7 +18,7 @@ concept valid_type = std::disjunction_v<
 
 // Главная функция
 template <details::format_string fmt, details::fixed_string source, valid_type... Ts>
-[[nodiscard]] consteval auto scan() {
+[[nodiscard]] consteval auto scan() noexcept {
     constexpr auto typesCount{sizeof...(Ts)};
     static_assert(fmt.number_placeholders == typesCount, "Invalid types count");
     constexpr auto make_tuple = []<std::size_t... Is>(std::index_sequence<Is...>) {
