@@ -16,10 +16,10 @@ public:
 
 private:
     // Метод для получения количества плейсхолдеров и проверки корректности формирующей строки
-    static consteval std::expected<std::size_t, parse_error> get_number_placeholders();
+    [[nodiscard]] static consteval std::expected<std::size_t, parse_error> get_number_placeholders();
 
     // Метод для получения позиций плейсхолдеров
-    static consteval auto get_placeholder_positions();
+    [[nodiscard]] static consteval auto get_placeholder_positions();
 
 private:
     static constexpr const auto exp_number_placeholders{get_number_placeholders()};
@@ -113,7 +113,7 @@ consteval auto format_string<str>::get_placeholder_positions() {
 
 // Пользовательский литерал _fs
 template <fixed_string str>
-consteval auto operator""_fs() {
+[[nodiscard]] consteval auto operator""_fs() {
     return format_string<str>{};
 }
 
