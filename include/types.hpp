@@ -26,6 +26,8 @@ struct fixed_string {
         std::copy_n(arrChar, ARR_CHAR_SIZE, data);
     }
 
+    
+
     constexpr fixed_string(const char *begin, const char *end) noexcept {
         // компилятор не позволяет проверять указатели в compile-time
         assert(std::distance(begin, end) <= SIZE);
