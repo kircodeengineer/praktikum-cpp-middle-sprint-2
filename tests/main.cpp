@@ -5,28 +5,32 @@
 void test_positive() {
     using namespace stdx::details;
     // 1
-    static_assert(stdx::scan<"{%d}"_fs, "12345", std::int32_t>().values == std::make_tuple(12345));
+    static_assert(stdx::scan<"{%d}"_fs, "12345", std::int32_t>().values == std::make_tuple(std::int32_t(12345)));
     // 2
-    static_assert(stdx::scan<"{%d}"_fs, "12345", std::int64_t>().values == std::make_tuple(12345));
+    static_assert(stdx::scan<"{%d}"_fs, "12345", std::int64_t>().values == std::make_tuple(std::int64_t(12345)));
     // 3
-    static_assert(stdx::scan<"{%u}"_fs, "12345", std::uint32_t>().values == std::make_tuple(12345));
+    static_assert(stdx::scan<"{%u}"_fs, "12345", std::uint32_t>().values == std::make_tuple(std::uint32_t(12345)));
     // 4
-    static_assert(stdx::scan<"{%u}"_fs, "12345", std::uint64_t>().values == std::make_tuple(12345));
+    static_assert(stdx::scan<"{%u}"_fs, "12345", std::uint64_t>().values == std::make_tuple(std::uint64_t(12345)));
     // 5
-    static_assert(stdx::scan<"{%s}"_fs, "12345", std::string_view>().values == std::make_tuple("12345"));
+    static_assert(stdx::scan<"{%s}"_fs, "12345", std::string_view>().values ==
+                  std::make_tuple(std::string_view("12345")));
     // 6
-    static_assert(stdx::scan<"{}"_fs, "12345", std::string_view>().values == std::make_tuple("12345"));
+    static_assert(stdx::scan<"{}"_fs, "12345", std::string_view>().values ==
+                  std::make_tuple(std::string_view("12345")));
     // 7
     static_assert(stdx::scan<""_fs, "12345">().values == std::make_tuple());
     // 8
     static_assert(stdx::scan<"{%d} {%u} {%s}"_fs, "1 2 str", std::int32_t, std::uint32_t, std::string_view>().values ==
-                  std::make_tuple(1, 2, "str"));
+                  std::make_tuple(std::int32_t(1), std::uint32_t(2), std::string_view("str")));
     // 9
     static_assert(stdx::scan<"Some {%d} text {%u} here {%s}"_fs, "Some 1 text 2 here str", std::int32_t, std::uint32_t,
                              std::string_view>()
-                      .values == std::make_tuple(1, 2, "str"));
+                      .values == std::make_tuple(std::int32_t(1), std::uint32_t(2), std::string_view("str")));
     // 10
-    static_assert(stdx::scan<"{%d}"_fs, "-12345", std::int32_t>().values == std::make_tuple(-12345));
+    static_assert(stdx::scan<"{%d}"_fs, "-12345", std::int32_t>().values == std::make_tuple(std::int32_t(-12345)));
+    // 11
+    static_assert(stdx::scan<"{%d}"_fs, "12345", const std::int32_t>().values == std::make_tuple(std::int32_t(12345)));
 };
 void test_negative() {
     using namespace stdx::details;
