@@ -1,38 +1,43 @@
 #pragma once
 
+#include <array>
 #include <expected>
+#include <string_view>
 
 #include "types.hpp"
 
 namespace stdx::details {
 
 // Шаблонный класс для хранения форматирующей строчки и ее особенностей
-// ваш код здесь
+template <fixed_string str>
 class format_string {
-    // ваш код здесь
+public:
+    static constexpr auto fmt{str};
+
+private:
+    // Метод для получения количества плейсхолдеров и проверки корректности формирующей строки
+    [[nodiscard]] static consteval std::expected<std::size_t, parse_error> get_number_placeholders();
+
+    // Метод для получения позиций плейсхолдеров
+    [[nodiscard]] static consteval auto get_placeholder_positions() noexcept;
+
+private:
+    static constexpr const auto exp_number_placeholders{get_number_placeholders()};
+    static_assert(exp_number_placeholders.has_value(), std::string_view(exp_number_placeholders.error().data));
+
+public:
+    static constexpr const auto number_placeholders{exp_number_placeholders.value()};
+    static constexpr const auto placeholder_positions{get_placeholder_positions()};
 };
 
-// Пользовательский литерал
-/*
-ваш код здесь
-ваш код здесь operator"" _fs()  сигнатуру также поменяйте
-{
-ваш код здесь
-}
-*/
-
-// Функция для получения количества плейсхолдеров и проверки корректности формирующей строки
-// Функция закомментирована, так как еще не реализованы классы, которые она использует
-/*
-// Сделайте эту свободную функцию методом класса format_string
-template<fixed_string str>
-consteval std::expected<size_t, parse_error> get_number_placeholders() {
+template <fixed_string str>
+consteval std::expected<std::size_t, parse_error> format_string<str>::get_number_placeholders() {
     constexpr size_t N = str.size();
     if (!N)
         return 0;
     size_t placeholder_count = 0;
     size_t pos = 0;
-    const size_t size = N - 1; // -1 для игнорирования нуль-терминатора
+    const size_t size = N - 1;  // -1 для игнорирования нуль-терминатора
 
     while (pos < size) {
         // Пропускаем все символы до '{'
@@ -84,13 +89,32 @@ consteval std::expected<size_t, parse_error> get_number_placeholders() {
 
     return placeholder_count;
 }
-*/
 
-// Функция для получения позиций плейсхолдеров
+template <fixed_string str>
+consteval auto format_string<str>::get_placeholder_positions() noexcept {
+    std::array<std::pair<std::size_t, std::size_t>, number_placeholders> result;
+    std::size_t placeholder_i{};
 
-// ваш код здесь
-void get_placeholder_positions() {  // сигнатуру тоже нужно изменить
-    // ваш код здесь
+    for (std::size_t i = 0; i < str.size(); ++i) {
+        switch (str.data[i]) {
+        case '{':
+            result[placeholder_i].first = i;
+            break;
+        case '}':
+            result[placeholder_i].second = i;
+            ++placeholder_i;
+            break;
+        default:
+            break;
+        }
+    }
+    return result;
 }
 
-} // namespace stdx::details
+// Пользовательский литерал _fs
+template <fixed_string str>
+[[nodiscard]] consteval auto operator""_fs() noexcept {
+    return format_string<str>{};
+}
+
+};  // namespace stdx::details
